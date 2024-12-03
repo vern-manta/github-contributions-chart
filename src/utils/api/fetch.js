@@ -1,6 +1,7 @@
 import cheerio from "cheerio";
 import _ from "lodash";
 import axios from 'axios';
+import { TOKEN } from '../../../env'
 
 const COLOR_MAP = {
   0: "#ebedf0",
@@ -206,7 +207,7 @@ export async function fetchDataForAllYears(username, format) {
 }
 
 export async function fetchDataForHalfMonths(username) {
-  const token = ''
+  const token = TOKEN
   const today = new Date()
   today.setUTCHours(0,0,0,0)
   const to = today.toISOString()

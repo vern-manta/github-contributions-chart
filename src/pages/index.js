@@ -9,6 +9,7 @@ import {
   copyToClipboard
 } from "../utils/export";
 import ThemeSelector from "../components/themes";
+import members from './member'
 
 const App = () => {
   const inputRef = useRef();
@@ -164,7 +165,7 @@ const App = () => {
               )}
             </div>
 
-            <canvas ref={canvasRef} />
+            <a href={`https://github.com/${username}`} target="_blank"><canvas ref={canvasRef} /></a>
           </>
         )}
       </div>
