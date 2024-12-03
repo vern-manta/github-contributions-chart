@@ -82,11 +82,16 @@ const App = () => {
 
     const { drawContributions } = await import("github-contributions-canvas");
 
+    const reverseWeeks = data.contributionCalendar.weeks.reverse()
+    const thisWeekCount = reverseWeeks[0].contributionDays.reduce((a, b) => b.contributionCount + a, 0)
+    const lastWeekCount = reverseWeeks[1].contributionDays.reduce((a, b) => b.contributionCount + a, 0)
+
     drawContributions(canvasRef.current, {
       data,
-      username: username,
+      username: data.username,
+      skipAxisLabel: false,
       themeName: theme,
-      footerText: "Made by @sallar & friends - github-contributions.vercel.app"
+      footerText: `This week contributions: ${thisWeekCount}, Last week contributions: ${lastWeekCount}`
     });
     contentRef.current.scrollIntoView({
       behavior: "smooth"

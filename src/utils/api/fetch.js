@@ -1,5 +1,6 @@
 import cheerio from "cheerio";
 import _ from "lodash";
+import axios from 'axios';
 
 const COLOR_MAP = {
   0: "#ebedf0",
@@ -8,6 +9,62 @@ const COLOR_MAP = {
   3: "#30a14e",
   4: "#216e39"
 };
+
+const LEVEL_MAP = {
+  "NONE": 0,
+  "FIRST_QUARTILE": 1,
+  "SECOND_QUARTILE": 2,
+  "THIRD_QUARTILE": 3,
+  "FOURTH_QUARTILE": 4
+}
+
+async function getGithubContributions({
+  username,
+  from,
+  to,
+  token
+}) {
+  if (!username || !token) {
+    throw new Error('You must provide a github username and token')
+  }
+
+  const headers = {
+    Authorization: `bearer ${token}`
+  }
+  const body = {
+    query: `query {
+        user(login: "${username}") {
+          name
+          contributionsCollection(from: "${from}", to: "${to}") {
+            contributionCalendar {
+              colors
+              totalContributions
+              weeks {
+                contributionDays {
+                  color
+                  contributionCount
+                  contributionLevel
+                  date
+                  weekday
+                }
+                firstDay
+              }
+            }
+          }
+        }
+      }`
+  }
+
+  const response = await axios({
+    url: 'https://api.github.com/graphql',
+    method: 'post',
+    data: { query: body.query },
+    headers
+  })
+  return response
+}
+
+
 
 async function fetchYears(username) {
   const data = await fetch(`https://github.com/${username}?tab=contributions`, {
@@ -94,10 +151,35 @@ async function fetchDataForYear(url, year, format) {
   };
 }
 
+// interface DataStructYear {
+//   year: string;
+//   total: number;
+//   range: {
+//     start: string;
+//     end: string;
+//   };
+// }
+
+// interface DataStructContribution {
+//   date: string;
+//   count: number;
+//   color: string;
+//   intensity: number;
+// }
+
+// interface DataStruct {
+//   years: DataStructYear[];
+//   contributions: DataStructContribution[];
+// }
+
 export async function fetchDataForAllYears(username, format) {
   const years = await fetchYears(username);
+  // [{
+  //   href: '/raindust?tab=contributions&from=2024-12-01&to=2024-12-03',
+  //   text: '2024'
+  // }]
   return Promise.all(
-    years.map((year) => fetchDataForYear(year.href, year.text, format))
+    years.slice(0, 1).map((year) => fetchDataForYear(year.href, year.text, format))
   ).then((resp) => {
     return {
       years: (() => {
@@ -113,12 +195,53 @@ export async function fetchDataForAllYears(username, format) {
         format === "nested"
           ? resp.reduce((acc, curr) => _.merge(acc, curr.contributions))
           : resp
-              .reduce((list, curr) => [...list, ...curr.contributions], [])
-              .sort((a, b) => {
-                if (a.date < b.date) return 1;
-                else if (a.date > b.date) return -1;
-                return 0;
-              })
+            .reduce((list, curr) => [...list, ...curr.contributions], [])
+            .sort((a, b) => {
+              if (a.date < b.date) return 1;
+              else if (a.date > b.date) return -1;
+              return 0;
+            })
     };
   });
+}
+
+export async function fetchDataForHalfMonths(username) {
+  const token = ''
+  const today = new Date()
+  today.setUTCHours(0,0,0,0)
+  const to = today.toISOString()
+  today.setMonth(today.getMonth() - 6);
+  const from = today.toISOString()
+
+  const resp = await getGithubContributions({ username, token, to, from})
+  if (!resp.data) return {}
+  const data = resp.data.data
+  const contributionCalendar = data.user.contributionsCollection.contributionCalendar
+  const start = contributionCalendar.weeks[0].firstDay
+  const end = contributionCalendar.weeks.slice(-1)[0].contributionDays.slice(-1)[0].date
+  const contributions = []
+  contributionCalendar.weeks.forEach(week => {
+    week.contributionDays.forEach(day => {
+      contributions.push({
+          "date": day.date,
+          "count": day.contributionCount,
+          "color": day.color,
+          "intensity": LEVEL_MAP[day.contributionLevel],
+      })
+
+    }) 
+  })
+  return {
+    username: data.user.name,
+    years: [{
+      "year": end.slice(0, 4),
+      "total": contributionCalendar.totalContributions,
+      "range": {
+        "start": start,
+        "end": end
+      }
+    }],
+    contributions: contributions,
+    contributionCalendar: contributionCalendar
+  }
 }
