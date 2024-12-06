@@ -149,7 +149,7 @@ async function fetchDataForYear(url, year, format) {
           intensity: $day.attr("data-level") || 0
         };
 
-        console.log('test', value.date, $day.attr("data-level"), dayCount)
+        // console.log('test', value.date, $day.attr("data-level"), dayCount)
         return { date, value };
       };
 
@@ -288,11 +288,11 @@ export async function fetchDataForAllYears(username, format) {
 
     thisWeekDates.forEach(day => {
       let contribute = result.contributions.find(r => r.date === day)
-      thisWeekCount += contribute.count
+      thisWeekCount += contribute?.count
     })
     lastWeekDates.forEach(day => {
       let contribute = result.contributions.find(r => r.date === day)
-      lastWeekCount += contribute.count
+      lastWeekCount += contribute?.count
     })
 
     result.thisWeekCount = thisWeekCount
