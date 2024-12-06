@@ -1,7 +1,9 @@
-import cheerio from "cheerio";
+// import cheerio from "cheerio";
 import _ from "lodash";
 import axios from "axios";
-import { TOKEN } from "../../../env";
+import { TOKEN, COOKIE } from "../../../env";
+
+const cheerio = require('cheerio');
 
 const COLOR_MAP = {
   0: "#ebedf0",
@@ -70,39 +72,39 @@ async function fetchYears(username) {
   // const $ = cheerio.load(body);
   return [
     {
-      href: `https://github.com/${username}?action=show&controller=profiles&tab=contributions&user_id=${username}`,
+      href: `/${username}?action=show&controller=profiles&tab=contributions&user_id=${username}`,
       text: "2024"
     }
   ];
-  return $(".js-year-link.filter-item")
-    .get()
-    .map((a) => {
-      const $a = $(a);
-      const href = $a.attr("href");
-      const githubUrl = new URL(`https://github.com${href}`);
-      githubUrl.searchParams.set("tab", "contributions");
-      const formattedHref = `${githubUrl.pathname}${githubUrl.search}`;
+  // return $(".js-year-link.filter-item")
+  //   .get()
+  //   .map((a) => {
+  //     const $a = $(a);
+  //     const href = $a.attr("href");
+  //     const githubUrl = new URL(`https://github.com${href}`);
+  //     githubUrl.searchParams.set("tab", "contributions");
+  //     const formattedHref = `${githubUrl.pathname}${githubUrl.search}`;
 
-      return {
-        href: formattedHref,
-        text: $a.text().trim()
-      };
-    });
+  //     return {
+  //       href: formattedHref,
+  //       text: $a.text().trim()
+  //     };
+  //   });
 }
 
 async function fetchDataForYear(url, year, format) {
   console.log("test", url, year);
   const data = await fetch(`https://github.com${url}`, {
     headers: {
-      "x-requested-with": "XMLHttpRequest"
+      "x-requested-with": "XMLHttpRequest",
+      "cookie": COOKIE,
     }
   });
   const $ = cheerio.load(await data.text());
+
   const $days = $(
     "table.ContributionCalendar-grid td.ContributionCalendar-day"
   );
-
-  // const $toolTips = $(".js-calendar-graph tool-tip")
 
   const contribText = $(".js-yearly-contributions h2")
     .text()
@@ -124,12 +126,17 @@ async function fetchDataForYear(url, year, format) {
     contributions: (() => {
       const parseDay = (day, index) => {
         const $day = $(day);
-        const toolTip = $(
-          `.js-calendar-graph tool-tip=[for=${$day.attr("id")}]`
-        )
-          .text()
-          .trim();
-        console.log("test", toolTip);
+        const toolTipId = $day.attr("id")
+        // console.log('test', toolTipId)
+
+        const dayCountText = $(`tool-tip[for="${toolTipId}"]`).text().trim().match(/^([0-9,]+)\s/)
+        
+        let dayCount = 0;
+        if (dayCountText) {
+          [dayCount] = dayCountText;
+          dayCount = parseInt(dayCount.replace(/,/g, ""), 10);
+        }
+
         const date = $day
           .attr("data-date")
           .split("-")
@@ -137,10 +144,12 @@ async function fetchDataForYear(url, year, format) {
         const color = COLOR_MAP[$day.attr("data-level")];
         const value = {
           date: $day.attr("data-date"),
-          count: index === 0 ? contribCount : 0,
+          count: index === 0 ? contribCount : dayCount,
           color,
           intensity: $day.attr("data-level") || 0
         };
+
+        console.log('test', value.date, $day.attr("data-level"), dayCount)
         return { date, value };
       };
 
@@ -181,6 +190,56 @@ async function fetchDataForYear(url, year, format) {
 //   contributions: DataStructContribution[];
 // }
 
+function getWeekDatesUpToToday() {
+  const today = new Date();
+
+  // 获取当前日期是本周的第几天（0 表示周日，1 表示周一，以此类推）
+  const dayOfWeek = today.getDay();
+
+  // 将日期调整到周一
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - dayOfWeek + 1);
+
+  // 如果周日是第一天，将其作为周一的偏移
+  if (dayOfWeek === 0) startOfWeek.setDate(today.getDate() - 6);
+
+  // 生成日期数组，从周一到今天
+  const weekDates = [];
+  const currentDate = new Date(startOfWeek);
+
+  while (currentDate <= today) {
+    weekDates.push(currentDate.toISOString().split("T")[0]); // 格式为 YYYY-MM-DD
+    currentDate.setDate(currentDate.getDate() + 1); // 加一天
+  }
+
+  return weekDates;
+}
+
+function getLastWeekDates() {
+  const today = new Date();
+
+  // 获取当前日期是本周的第几天（0 表示周日，1 表示周一，以此类推）
+  const dayOfWeek = today.getDay();
+
+  // 计算上周的周一
+  const startOfLastWeek = new Date(today);
+  startOfLastWeek.setDate(today.getDate() - dayOfWeek - 6);
+
+  // 如果今天是周日，调整为前一周的开始
+  if (dayOfWeek === 0) startOfLastWeek.setDate(today.getDate() - 13);
+
+  // 生成上周日期数组
+  const lastWeekDates = [];
+  const currentDate = new Date(startOfLastWeek);
+
+  for (let i = 0; i < 7; i++) {
+    lastWeekDates.push(currentDate.toISOString().split("T")[0]); // 格式为 YYYY-MM-DD
+    currentDate.setDate(currentDate.getDate() + 1); // 加一天
+  }
+
+  return lastWeekDates;
+}
+
 export async function fetchDataForAllYears(username, format) {
   const years = await fetchYears(username);
   // [{
@@ -194,7 +253,16 @@ export async function fetchDataForAllYears(username, format) {
         fetchDataForYear(year.href, year.text, format)
       )
   ).then((resp) => {
-    return {
+
+    const thisWeekDates = getWeekDatesUpToToday()
+    const lastWeekDates = getLastWeekDates()
+
+
+    let thisWeekCount = 0
+    let lastWeekCount = 0
+
+    const result =  {
+      login: username,
       years: (() => {
         const obj = {};
         const arr = resp.map((year) => {
@@ -208,13 +276,29 @@ export async function fetchDataForAllYears(username, format) {
         format === "nested"
           ? resp.reduce((acc, curr) => _.merge(acc, curr.contributions))
           : resp
-              .reduce((list, curr) => [...list, ...curr.contributions], [])
-              .sort((a, b) => {
-                if (a.date < b.date) return 1;
-                else if (a.date > b.date) return -1;
-                return 0;
-              })
-    };
+            .reduce((list, curr) => [...list, ...curr.contributions], [])
+            .sort((a, b) => {
+              if (a.date < b.date) return 1;
+              else if (a.date > b.date) return -1;
+              return 0;
+            }),
+      thisWeekCount: thisWeekCount,
+      lastWeekCount: lastWeekCount
+    }
+
+    thisWeekDates.forEach(day => {
+      let contribute = result.contributions.find(r => r.date === day)
+      thisWeekCount += contribute.count
+    })
+    lastWeekDates.forEach(day => {
+      let contribute = result.contributions.find(r => r.date === day)
+      lastWeekCount += contribute.count
+    })
+
+    result.thisWeekCount = thisWeekCount
+    result.lastWeekCount = lastWeekCount
+
+    return result;
   });
 }
 
@@ -257,7 +341,6 @@ export async function fetchDataForHalfMonths(username) {
     0
   );
   return {
-    username: data.user.name,
     login: username,
     years: [
       {
@@ -270,7 +353,7 @@ export async function fetchDataForHalfMonths(username) {
       }
     ],
     contributions: contributions,
-    contributionCalendar: contributionCalendar,
+    contributionCalendar: contributionCalendar, // 备用
     thisWeekCount: thisWeekCount,
     lastWeekCount: lastWeekCount
   };
