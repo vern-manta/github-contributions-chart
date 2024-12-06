@@ -1,14 +1,14 @@
 const members = [
-  // {
-  //   login: "ace155",
-  //   name: "Ace - Ana",
-  //   tfa_enabled: true,
-  //   is_public: false,
-  //   role: "Owner",
-  //   last_active: "2024-12-05T18:16:34.000+08:00",
-  //   saml_name_id: null,
-  //   organization_roles_count: 0
-  // },
+  {
+    login: "ace155",
+    name: "Ace - Ana",
+    tfa_enabled: true,
+    is_public: false,
+    role: "Owner",
+    last_active: "2024-12-05T18:16:34.000+08:00",
+    saml_name_id: null,
+    organization_roles_count: 0
+  },
   // {
   //   login: "Chaoming-L",
   //   name: "Damon",
@@ -49,16 +49,16 @@ const members = [
     saml_name_id: null,
     organization_roles_count: 0
   },
-  // {
-  //   login: "gavin-soo",
-  //   name: "Gavin",
-  //   tfa_enabled: true,
-  //   is_public: false,
-  //   role: "Owner",
-  //   last_active: "2024-12-06T15:51:12.000+08:00",
-  //   saml_name_id: null,
-  //   organization_roles_count: 0
-  // },
+  {
+    login: "gavin-soo",
+    name: "Gavin SOON",
+    tfa_enabled: true,
+    is_public: false,
+    role: "Owner",
+    last_active: "2024-12-06T15:51:12.000+08:00",
+    saml_name_id: null,
+    organization_roles_count: 0
+  },
   {
     login: "gyllone",
     name: "Lone G",
@@ -169,16 +169,16 @@ const members = [
   //   saml_name_id: null,
   //   organization_roles_count: 0
   // },
-  // {
-  //   login: "Victor-Leeee",
-  //   name: "Wade Liu",
-  //   tfa_enabled: false,
-  //   is_public: false,
-  //   role: "Member",
-  //   last_active: "2024-12-03T17:33:41.000+08:00",
-  //   saml_name_id: null,
-  //   organization_roles_count: 0
-  // },
+  {
+    login: "Victor-Leeee",
+    name: "Wade Liu",
+    tfa_enabled: false,
+    is_public: false,
+    role: "Member",
+    last_active: "2024-12-03T17:33:41.000+08:00",
+    saml_name_id: null,
+    organization_roles_count: 0
+  },
   // {
   //   login: "wuyahuang",
   //   name: "yahuang.wu",
