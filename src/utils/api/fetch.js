@@ -61,13 +61,19 @@ async function getGithubContributions({ username, from, to, token }) {
 }
 
 async function fetchYears(username) {
-  const data = await fetch(`https://github.com/${username}?tab=contributions`, {
-    headers: {
-      "x-requested-with": "XMLHttpRequest"
+  // const data = await fetch(`https://github.com/${username}?tab=contributions`, {
+  //   headers: {
+  //     "x-requested-with": "XMLHttpRequest"
+  //   }
+  // });
+  // const body = await data.text();
+  // const $ = cheerio.load(body);
+  return [
+    {
+      href: `https://github.com/${username}?action=show&controller=profiles&tab=contributions&user_id=${username}`,
+      text: "2024"
     }
-  });
-  const body = await data.text();
-  const $ = cheerio.load(body);
+  ];
   return $(".js-year-link.filter-item")
     .get()
     .map((a) => {
@@ -185,7 +191,7 @@ export async function fetchDataForAllYears(username, format) {
     years
       .slice(0, 1)
       .map((year) =>
-        fetchDataForYear(year.href.split("&from=")[0], year.text, format)
+        fetchDataForYear(year.href, year.text, format)
       )
   ).then((resp) => {
     return {
