@@ -104,8 +104,9 @@ const Graphs = (props) => {
         {data !== null && (
           <>
             <a href={`https://github.com/${data.login}`} target="_blank" title={member.name}>
-              <canvas ref={canvasRef} />
+              {member.name}
             </a>
+            <canvas ref={canvasRef} />
             {/* <div className="App-buttons">
               <button
                 className="App-download-button"
