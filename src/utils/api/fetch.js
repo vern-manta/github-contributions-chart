@@ -232,6 +232,10 @@ export async function fetchDataForHalfMonths(username) {
 
     }) 
   })
+
+  const reverseWeeks = [...contributionCalendar.weeks].reverse()
+  const thisWeekCount = reverseWeeks[0].contributionDays.reduce((a, b) => b.contributionCount + a, 0)
+  const lastWeekCount = reverseWeeks[1].contributionDays.reduce((a, b) => b.contributionCount + a, 0)
   return {
     username: data.user.name,
     years: [{
@@ -243,6 +247,8 @@ export async function fetchDataForHalfMonths(username) {
       }
     }],
     contributions: contributions,
-    contributionCalendar: contributionCalendar
+    contributionCalendar: contributionCalendar,
+    thisWeekCount: thisWeekCount,
+    lastWeekCount: lastWeekCount
   }
 }

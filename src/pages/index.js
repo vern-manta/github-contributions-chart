@@ -9,7 +9,7 @@ import {
   copyToClipboard
 } from "../utils/export";
 import ThemeSelector from "../components/themes";
-import members from './member'
+import members from './soon-member'
 
 const App = () => {
   const inputRef = useRef();
@@ -83,16 +83,12 @@ const App = () => {
 
     const { drawContributions } = await import("github-contributions-canvas");
 
-    const reverseWeeks = data.contributionCalendar.weeks.reverse()
-    const thisWeekCount = reverseWeeks[0].contributionDays.reduce((a, b) => b.contributionCount + a, 0)
-    const lastWeekCount = reverseWeeks[1].contributionDays.reduce((a, b) => b.contributionCount + a, 0)
-
     drawContributions(canvasRef.current, {
       data,
       username: data.username,
       skipAxisLabel: false,
       themeName: theme,
-      footerText: `This week contributions: ${thisWeekCount}, Last week contributions: ${lastWeekCount}`
+      footerText: `This week contributions: ${data.thisWeekCount}, Last week contributions: ${data.lastWeekCount}`
     });
     contentRef.current.scrollIntoView({
       behavior: "smooth"
