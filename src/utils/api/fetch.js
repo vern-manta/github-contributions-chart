@@ -85,6 +85,7 @@ async function fetchYears(username) {
 }
 
 async function fetchDataForYear(url, year, format) {
+  console.log("test", url, year);
   const data = await fetch(`https://github.com${url}`, {
     headers: {
       "x-requested-with": "XMLHttpRequest"
@@ -94,6 +95,8 @@ async function fetchDataForYear(url, year, format) {
   const $days = $(
     "table.ContributionCalendar-grid td.ContributionCalendar-day"
   );
+
+  // const $toolTips = $(".js-calendar-graph tool-tip")
 
   const contribText = $(".js-yearly-contributions h2")
     .text()
@@ -115,6 +118,12 @@ async function fetchDataForYear(url, year, format) {
     contributions: (() => {
       const parseDay = (day, index) => {
         const $day = $(day);
+        const toolTip = $(
+          `.js-calendar-graph tool-tip=[for=${$day.attr("id")}]`
+        )
+          .text()
+          .trim();
+        console.log("test", toolTip);
         const date = $day
           .attr("data-date")
           .split("-")
@@ -175,7 +184,9 @@ export async function fetchDataForAllYears(username, format) {
   return Promise.all(
     years
       .slice(0, 1)
-      .map((year) => fetchDataForYear(year.href, year.text, format))
+      .map((year) =>
+        fetchDataForYear(year.href.split("&from=")[0], year.text, format)
+      )
   ).then((resp) => {
     return {
       years: (() => {

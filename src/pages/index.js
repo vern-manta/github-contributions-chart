@@ -13,10 +13,12 @@ import SOONMembers from "./soon-member";
 import Graphs from "./graphs";
 import Queue from "queue-promise";
 import MantaMembers from "./manta-member";
+import TestMembers from "./test-member";
 
 const MEMBERS_MAP = {
   SOON: SOONMembers,
-  Manta: MantaMembers
+  Manta: MantaMembers,
+  Test: TestMembers
 };
 
 const App = () => {
@@ -129,6 +131,15 @@ const App = () => {
               />
               Manta
             </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                value="Test"
+                checked={selectedOption === "Test"}
+                onChange={handleChange}
+              />
+              Test
+            </label>
           </div>
           <button onClick={handleSubmitTeam}>
             <span role="img" aria-label="Stars">
@@ -148,7 +159,6 @@ const App = () => {
         </p>
         <div className="graph-list">
           {results.map((result) => {
-            console.log("test", result);
             return (
               <Graphs
                 key={result.member.login}
