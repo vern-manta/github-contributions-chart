@@ -29,7 +29,7 @@ const App = () => {
   const [results, setResults] = useState([]);
   const queue = new Queue({
     concurrent: 1,
-    interval: 1000,
+    interval: 500,
     start: false
   });
   queue.on("reject", (error) => console.error(error));

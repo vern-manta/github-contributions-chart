@@ -193,42 +193,36 @@ async function fetchDataForYear(url, year, format) {
 function getWeekDatesUpToToday() {
   const today = new Date();
 
-  // 获取当前日期是本周的第几天（0 表示周日，1 表示周一，以此类推）
+  // 获取今天是本周的第几天（0 表示周日，1 表示周一，以此类推）
   const dayOfWeek = today.getDay();
 
-  // 将日期调整到周一
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - dayOfWeek + 1);
+  // 计算本周周日的日期
+  const startOfThisWeek = new Date(today);
+  startOfThisWeek.setDate(today.getDate() - dayOfWeek);
 
-  // 如果周日是第一天，将其作为周一的偏移
-  if (dayOfWeek === 0) startOfWeek.setDate(today.getDate() - 6);
-
-  // 生成日期数组，从周一到今天
-  const weekDates = [];
-  const currentDate = new Date(startOfWeek);
+  // 生成本周日期数组（从周日到今天）
+  const thisWeekDates = [];
+  const currentDate = new Date(startOfThisWeek);
 
   while (currentDate <= today) {
-    weekDates.push(currentDate.toISOString().split("T")[0]); // 格式为 YYYY-MM-DD
+    thisWeekDates.push(currentDate.toISOString().split("T")[0]); // 格式为 YYYY-MM-DD
     currentDate.setDate(currentDate.getDate() + 1); // 加一天
   }
 
-  return weekDates;
+  return thisWeekDates;
 }
 
 function getLastWeekDates() {
   const today = new Date();
 
-  // 获取当前日期是本周的第几天（0 表示周日，1 表示周一，以此类推）
+  // 获取今天是本周的第几天（0 表示周日，1 表示周一，以此类推）
   const dayOfWeek = today.getDay();
 
-  // 计算上周的周一
+  // 计算上周周日的日期
   const startOfLastWeek = new Date(today);
-  startOfLastWeek.setDate(today.getDate() - dayOfWeek - 6);
+  startOfLastWeek.setDate(today.getDate() - dayOfWeek - 7);
 
-  // 如果今天是周日，调整为前一周的开始
-  if (dayOfWeek === 0) startOfLastWeek.setDate(today.getDate() - 13);
-
-  // 生成上周日期数组
+  // 生成上周日期数组（从周日开始）
   const lastWeekDates = [];
   const currentDate = new Date(startOfLastWeek);
 
