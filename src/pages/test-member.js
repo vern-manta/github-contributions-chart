@@ -119,16 +119,16 @@ const members = [
   //   saml_name_id: null,
   //   organization_roles_count: 0
   // },
-  {
-    login: "raindust",
-    name: "Yan Mingzhi",
-    tfa_enabled: true,
-    is_public: false,
-    role: "Member",
-    last_active: "2024-12-06T11:16:28.000+08:00",
-    saml_name_id: null,
-    organization_roles_count: 0
-  },
+  // {
+  //   login: "raindust",
+  //   name: "Yan Mingzhi",
+  //   tfa_enabled: true,
+  //   is_public: false,
+  //   role: "Member",
+  //   last_active: "2024-12-06T11:16:28.000+08:00",
+  //   saml_name_id: null,
+  //   organization_roles_count: 0
+  // },
   // {
   //   login: "rkmonarch",
   //   name: "Rahul Kulkarni",
@@ -229,5 +229,15 @@ const members = [
   //   saml_name_id: null,
   //   organization_roles_count: 0
   // }
+  {
+    login: "tkvern",
+    name: "Vern Brandl",
+    tfa_enabled: true,
+    is_public: false,
+    role: "Member",
+    last_active: "2024-12-06T11:16:28.000+08:00",
+    saml_name_id: null,
+    organization_roles_count: 0
+  },
 ];
 export default members;

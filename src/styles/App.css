@@ -68,7 +68,7 @@ html {
 }
 
 .App-result {
-  max-width: 576px;
+  max-width: 600px;
   margin: 0 auto;
   flex: 1;
 }
